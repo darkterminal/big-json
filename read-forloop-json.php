@@ -1,6 +1,7 @@
 <?php
 
 use JsonMachine\Items;
+use JsonMachine\JsonDecoder\ExtJsonDecoder;
 
 require_once 'vendor/autoload.php';
 
@@ -34,15 +35,22 @@ function showProgressBar($percentage, int $numDecimalPlaces)
 
     echo "($percentageString) " . $barsString . "\r";
 }
+// showProgressBar(intval($user->getPosition() / $fileSize * 100), 0) . PHP_EOL;
 
-$filename = '1-500-000-data.json';
+$filename = '../jsonrw/test-result.json';
 $fileSize = filesize($filename);
-$user = Items::fromFile($filename, ['debug' => true]);
+$user = Items::fromFile($filename, ['decoder' => new ExtJsonDecoder(true)]);
 
 $start = microtime(true);
+$no = 1;
 foreach ($user as $key => $data) {
-    showProgressBar(intval($user->getPosition() / $fileSize * 100), 0);
+    $count = count($data); // Cache the count
+    for ($i = 0; $i < $count; $i++) {
+        $v = $data[$i];
+        echo "[$no] => " . $v['name'] . PHP_EOL;
+        $no += 1;
+    }
 }
 $end = microtime(true);
 $executionTime = $end - $start;
-echo "Execution time: $executionTime seconds" . PHP_EOL;
+echo "Execution using for-loop took time: $executionTime seconds" . PHP_EOL;
